@@ -1,9 +1,10 @@
 mod circle;
 mod color;
-use std::{cell::RefCell, rc::Rc};
 use crate::circle::Circle;
 use crate::color::Color;
+use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
+use web_sys::Document;
 
 fn window() -> web_sys::Window {
     return web_sys::window().unwrap();
@@ -20,18 +21,25 @@ fn request_animation_frame(f: &Closure<dyn FnMut()>) {
 }
 
 #[wasm_bindgen]
-pub fn run(name: &str) -> Result<(), JsValue> {
-    web_sys::console::log_1(&name.into());
+pub fn run(xml_document: Document) -> Result<(), JsValue> {
+    let xml_children = xml_document.dyn_into::<web_sys::XmlDocument>()?.children();
+    for index in 0..xml_children.length() {
+        web_sys::console::log_1(&JsValue::from_str(xml_children.item(index).unwrap().node_name().as_str()));
+    }
 
     let body = document().body().ok_or(JsError::new("Err"))?;
     let canvas = document().create_element("canvas")?;
 
     body.append_child(&canvas)?;
 
-    let ctx = Rc::new(canvas
-        .dyn_into::<web_sys::HtmlCanvasElement>()
-        .unwrap()
-        .get_context("2d")?.unwrap().dyn_into::<web_sys::CanvasRenderingContext2d>()?);
+    let ctx = Rc::new(
+        canvas
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .unwrap()
+            .get_context("2d")?
+            .unwrap()
+            .dyn_into::<web_sys::CanvasRenderingContext2d>()?,
+    );
 
     let circle = Circle {
         radius: 36,

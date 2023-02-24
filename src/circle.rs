@@ -1,7 +1,7 @@
+use crate::color::Color;
+use std::f64::consts::PI;
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
-use crate::color::Color;
-use std::{f64::consts::PI};
 
 pub struct Circle {
     pub radius: u8,
