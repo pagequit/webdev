@@ -1,18 +1,26 @@
 {
-  "name": "webdev",
-  "version": "1.0.0",
-  "main": "index.js",
-  "author": "pagequit",
-  "license": "MIT",
-  "devDependencies": {
-    "ts-loader": "^9.4.2",
-    "typescript": "^4.9.5",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.11.1"
-  },
-  "scripts": {
-    "dev": "webpack-dev-server",
-    "wasm": "cargo watch -w src -- wasm-pack build --target web"
-  }
+    "name": "webdev",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "pagequit",
+    "license": "MIT",
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^5.53.0",
+        "@typescript-eslint/parser": "^5.53.0",
+        "eslint": "^8.35.0",
+        "eslint-config-prettier": "^8.6.0",
+        "prettier": "^2.8.4",
+        "ts-loader": "^9.4.2",
+        "typescript": "^4.9.5",
+        "webpack": "^5.75.0",
+        "webpack-cli": "^5.0.1",
+        "webpack-dev-server": "^4.11.1"
+    },
+    "scripts": {
+        "serve": "webpack-dev-server",
+        "webpack:watch": "webpack --watch",
+        "cargo:watch": "cargo watch -w src -- wasm-pack build --target web",
+        "build": "wasm-pack build --target web && webpack",
+        "fmt": "cargo fmt && prettier --write ."
+    }
 }
