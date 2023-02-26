@@ -12,6 +12,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "scripts": {
-    "dev": "webpack-dev-server"
+    "dev": "webpack-dev-server",
+    "wasm": "cargo watch -w src -- wasm-pack build --target web"
   }
 }
