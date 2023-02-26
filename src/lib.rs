@@ -19,16 +19,12 @@ fn request_animation_frame(f: &Closure<dyn FnMut()>) {
 fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d) {
     for idx in 0..collection.length() {
         let element = collection.item(idx).unwrap();
+        let children = element.children();
         // log(element.node_name().as_str());
 
         let shape = Circle {
             radius: 36,
-            color: Color {
-                red: 0,
-                green: 144,
-                blue: 255,
-                alpha: 1.0,
-            },
+            color: Color::from_rgb([0, 144, 255]),
         };
 
         let node = Node {
@@ -38,7 +34,6 @@ fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d) {
 
         node.draw(&ctx);
 
-        let children = collection.item(idx).unwrap().children();
         if children.length() > 0 {
             render_t(&children, &ctx);
         }
