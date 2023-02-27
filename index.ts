@@ -3,7 +3,7 @@ import init, { render } from "./pkg/webdev";
 init().then(() => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(
-        "<root><one></one><two></two></root>",
+        "<root><one><oo></oo><ot></ot></one><two></two><tree><to></to></tree></root>",
         "text/xml"
     );
     const canvas = document.querySelector("canvas");

@@ -5,7 +5,6 @@ use web_sys::Element;
 // #[derive(Shape)]
 pub struct Node {
     pub shape: Box<dyn Shape>,
-    pub element: Element,
 }
 
 impl Node {

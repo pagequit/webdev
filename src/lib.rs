@@ -1,10 +1,14 @@
 mod circle;
 mod color;
+mod drawable;
 mod node;
+mod position;
 mod shape;
-use crate::circle::Circle;
-use crate::color::Color;
-use crate::node::Node;
+// use crate::circle::Circle;
+// use crate::color::Color;
+// use crate::node::Node;
+use crate::position::Position;
+use crate::drawable::Drawable;
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
 use web_sys::*;
@@ -16,26 +20,32 @@ fn request_animation_frame(f: &Closure<dyn FnMut()>) {
         .unwrap();
 }
 
-fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d) {
+fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d, level: u32) {
     for idx in 0..collection.length() {
         let element = collection.item(idx).unwrap();
         let children = element.children();
         // log(element.node_name().as_str());
 
-        let shape = Circle {
-            radius: 36,
-            color: Color::from_rgb([0, 144, 255]),
-        };
+        // let shape = Circle {
+        //     radius: 36,
+        //     color: Color::from_rgb([0, 144, 255]),
+        // };
 
-        let node = Node {
-            shape: Box::new(shape),
-            element,
-        };
+        // let node = Node {
+        //     shape: Box::new(shape),
+        //     element,
+        // };
 
-        node.draw(&ctx);
+        // node.draw(&ctx);
+
+        // TODO
+
+        let x_offset = (((collection.length() - 1) * 15) * (level - 1)) as f64;
+
+        element.draw(&ctx, Position::from([150.0 - x_offset + (idx * 30) as f64, ((5 * (level - 1)) + (level * 30)) as f64]));
 
         if children.length() > 0 {
-            render_t(&children, &ctx);
+            render_t(&children, &ctx, level + 1);
         }
     }
 }
@@ -67,7 +77,7 @@ pub fn render(xml_document: Document, canvas: HtmlCanvasElement) -> Result<(), J
         request_animation_frame(animate.borrow().as_ref().unwrap());
         ctx.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
 
-        render_t(&xml_children, &ctx);
+        render_t(&xml_children, &ctx, 1);
     }));
 
     request_animation_frame(animate_clone.borrow().as_ref().unwrap());

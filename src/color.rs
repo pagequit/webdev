@@ -17,12 +17,23 @@ impl fmt::Display for Color {
     }
 }
 
-impl Color {
-    pub fn from_rgb(color: [u8; 3]) -> Self {
+impl From<(u8, u8, u8, f32)> for Color {
+    fn from(value: (u8, u8, u8, f32)) -> Self {
         return Self {
-            red: color[0],
-            green: color[1],
-            blue: color[2],
+            red: value.0,
+            green: value.1,
+            blue: value.2,
+            alpha: value.3,
+        }
+    }
+}
+
+impl Color {
+    pub fn from_rgb(value: [u8; 3]) -> Self {
+        return Self {
+            red: value[0],
+            green: value[1],
+            blue: value[2],
             alpha: 1.0,
         };
     }
