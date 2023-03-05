@@ -24,7 +24,7 @@ impl From<(u8, u8, u8, f32)> for Color {
             green: value.1,
             blue: value.2,
             alpha: value.3,
-        }
+        };
     }
 }
 

@@ -1,14 +1,16 @@
 mod circle;
 mod color;
 mod drawable;
+mod grid2d;
+mod line2d;
 mod node;
-mod position;
+mod point2d;
 mod shape;
-// use crate::circle::Circle;
-// use crate::color::Color;
-// use crate::node::Node;
-use crate::position::Position;
+mod vector2d;
 use crate::drawable::Drawable;
+use crate::grid2d::Grid2D;
+use crate::node::Node;
+use crate::point2d::Point2D;
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
 use web_sys::*;
@@ -42,7 +44,13 @@ fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d, level: 
 
         let x_offset = (((collection.length() - 1) * 15) * (level - 1)) as f64;
 
-        element.draw(&ctx, Position::from([150.0 - x_offset + (idx * 30) as f64, ((5 * (level - 1)) + (level * 30)) as f64]));
+        element.draw(
+            &ctx,
+            Point2D::from([
+                150.0 - x_offset + (idx * 30) as f64,
+                ((5 * (level - 1)) + (level * 30)) as f64,
+            ]),
+        );
 
         if children.length() > 0 {
             render_t(&children, &ctx, level + 1);
@@ -58,6 +66,8 @@ extern "C" {
 
 #[wasm_bindgen]
 pub fn render(xml_document: Document, canvas: HtmlCanvasElement) -> Result<(), JsValue> {
+    let grid: Grid2D<Node> = Grid2D::new(canvas.width() as usize, canvas.height() as usize, 4, 8);
+
     let xml_children = xml_document.dyn_into::<XmlDocument>()?.children();
 
     let ctx = Rc::new(
@@ -77,6 +87,7 @@ pub fn render(xml_document: Document, canvas: HtmlCanvasElement) -> Result<(), J
         request_animation_frame(animate.borrow().as_ref().unwrap());
         ctx.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
 
+        grid.draw(&ctx);
         render_t(&xml_children, &ctx, 1);
     }));
 
