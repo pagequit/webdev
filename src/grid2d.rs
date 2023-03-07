@@ -48,8 +48,12 @@ impl<Cell> Grid2D<Cell> {
         };
     }
 
-    pub fn get(&self, target: usize) -> Option<&Cell> {
-        return self.cells.get(target);
+    pub fn get(&self, row: usize, column: usize) -> Option<&Cell> {
+        return self.cells.get(row * self.rows + column);
+    }
+
+    pub fn set(&mut self, row: usize, column: usize, cell: Cell) {
+        self.cells[row * self.rows + column] = cell;
     }
 
     pub fn draw(&self, ctx: &CanvasRenderingContext2d) {

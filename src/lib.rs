@@ -58,6 +58,37 @@ fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d, level: 
     }
 }
 
+
+fn count_level<'a>(collection: &HtmlCollection, level: &'a mut Vec<Vec<String>>, level_index: usize) -> &'a mut Vec<Vec<String>> {
+    for idx in 0..collection.length() {
+        let element = collection.item(idx).unwrap();
+        let children = element.children();
+        let children_length = children.length();
+
+        let temp = level.get_mut(level_index).expect("falscher index du solltest schlafen gehen");
+        // *temp += 1;
+        temp.push(element.node_name());
+
+        if children_length > 0 {
+            level.push(Vec::new());
+            count_level(&children, level, level_index + 1);
+        }
+    }
+
+    return level;
+}
+
+fn get_width_per_level(collection: &HtmlCollection) -> Vec<Vec<String>> {
+    let mut level: Vec<Vec<String>> = Vec::new();
+    level.push(Vec::new());
+
+    count_level(collection, &mut level, 0);
+
+    return level;
+}
+
+
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
@@ -69,6 +100,14 @@ pub fn render(xml_document: Document, canvas: HtmlCanvasElement) -> Result<(), J
     let grid: Grid2D<Node> = Grid2D::new(canvas.width() as usize, canvas.height() as usize, 4, 8);
 
     let xml_children = xml_document.dyn_into::<XmlDocument>()?.children();
+
+    let test = get_width_per_level(&xml_children);
+    for e in test {
+        log(e.len().to_string().as_str());
+        for n in e {
+            log(n.as_str());
+        }
+    }
 
     let ctx = Rc::new(
         canvas
@@ -88,6 +127,7 @@ pub fn render(xml_document: Document, canvas: HtmlCanvasElement) -> Result<(), J
         ctx.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
 
         grid.draw(&ctx);
+
         render_t(&xml_children, &ctx, 1);
     }));
 
