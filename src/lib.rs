@@ -63,13 +63,12 @@ fn count_level<'a>(collection: &HtmlCollection, level: &'a mut Vec<Vec<String>>,
     for idx in 0..collection.length() {
         let element = collection.item(idx).unwrap();
         let children = element.children();
-        let children_length = children.length();
 
-        let temp = level.get_mut(level_index).expect("falscher index du solltest schlafen gehen");
+        let temp = level.get_mut(level_index).unwrap();
         // *temp += 1;
         temp.push(element.node_name());
 
-        if children_length > 0 {
+        if children.length() > 0 {
             level.push(Vec::new());
             count_level(&children, level, level_index + 1);
         }
@@ -102,6 +101,9 @@ pub fn render(xml_document: Document, canvas: HtmlCanvasElement) -> Result<(), J
     let xml_children = xml_document.dyn_into::<XmlDocument>()?.children();
 
     let test = get_width_per_level(&xml_children);
+
+    log(test.len().to_string().as_str());
+    log("--");
     for e in test {
         log(e.len().to_string().as_str());
         for n in e {
