@@ -53,7 +53,7 @@ fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d, level: 
         element.draw(
             &ctx,
             Point2D::from([
-                150.0 - x_offset as f64,
+                (150.0 + (w[0] as f64 / 2.0 * 30.0)) - (x_offset as f64),
                 ((5 * level) + ((level + 1) * 30)) as f64,
             ]),
         );
