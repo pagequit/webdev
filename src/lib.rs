@@ -22,7 +22,7 @@ fn request_animation_frame(f: &Closure<dyn FnMut()>) {
         .unwrap();
 }
 
-fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d, level: u32, width_per_level: &Vec<u32>) {
+fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d, level: u32, width_per_level: &mut Vec<[u32;2]>) {
     for idx in 0..collection.length() {
         let element = collection.item(idx).unwrap();
         let children = element.children();
@@ -42,13 +42,19 @@ fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d, level: 
 
         // TODO
 
-        let x_offset = (((collection.length() - 1) * 15) * (level - 1)) as f64;
+        let w = width_per_level.get_mut(level as usize).unwrap();
+        let x_offset = 30 * w[1];
+
+        w[1] += 1;
+        if w[1] >= w[0] {
+            w[1] = 0;
+        }
 
         element.draw(
             &ctx,
             Point2D::from([
-                150.0 - x_offset + (idx * 30) as f64,
-                ((5 * (level - 1)) + (level * 30)) as f64,
+                150.0 - x_offset as f64,
+                ((5 * level) + ((level + 1) * 30)) as f64,
             ]),
         );
 
@@ -58,18 +64,18 @@ fn render_t(collection: &HtmlCollection, ctx: &CanvasRenderingContext2d, level: 
     }
 }
 
-fn count_level<'a>(collection: &HtmlCollection, level: &'a mut Vec<u32>, level_index: usize) -> &'a mut Vec<u32> {
+fn count_level<'a>(collection: &HtmlCollection, level: &'a mut Vec<[u32;2]>, level_index: usize) -> &'a mut Vec<[u32;2]> {
     for idx in 0..collection.length() {
         let element = collection.item(idx).unwrap();
         let children = element.children();
 
         let level_value = level.get_mut(level_index).unwrap();
-        *level_value += 1;
+        level_value[0] += 1;
 
         if children.length() > 0 {
             let next_index = level_index + 1;
             if level.get(next_index).is_none() {
-                level.push(0);
+                level.push([0, 0]);
             }
             count_level(&children, level, next_index);
         }
@@ -78,9 +84,9 @@ fn count_level<'a>(collection: &HtmlCollection, level: &'a mut Vec<u32>, level_i
     return level;
 }
 
-fn calc_width_per_level(collection: &HtmlCollection) -> Vec<u32> {
-    let mut level: Vec<u32> = Vec::new();
-    level.push(0);
+fn calc_width_per_level(collection: &HtmlCollection) -> Vec<[u32;2]> {
+    let mut level: Vec<[u32;2]> = Vec::new();
+    level.push([0, 0]);
 
     count_level(collection, &mut level, 0);
 
@@ -99,7 +105,11 @@ pub fn render(xml_document: Document, canvas: HtmlCanvasElement) -> Result<(), J
     let grid: Grid2D<Node> = Grid2D::new(canvas.width() as usize, canvas.height() as usize, 4, 8);
 
     let xml_children = xml_document.dyn_into::<XmlDocument>()?.children();
-    let width_per_level = calc_width_per_level(&xml_children);
+    let mut width_per_level = calc_width_per_level(&xml_children);
+
+    for l in width_per_level.clone() {
+        log(l[0].to_string().as_str());
+    }
 
     let ctx = Rc::new(
         canvas
@@ -118,9 +128,9 @@ pub fn render(xml_document: Document, canvas: HtmlCanvasElement) -> Result<(), J
         request_animation_frame(animate.borrow().as_ref().unwrap());
         ctx.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
 
-        grid.draw(&ctx);
+        // grid.draw(&ctx);
 
-        render_t(&xml_children, &ctx, 1, &width_per_level);
+        render_t(&xml_children, &ctx, 0, &mut width_per_level);
     }));
 
     request_animation_frame(animate_clone.borrow().as_ref().unwrap());
